@@ -12,8 +12,7 @@ async function fetchbgm(url: string, c: any): Promise<any> {
 	return response;
 }
 
-
-export async function getCalander(c: any) {
+export async function getCalendar(c: any): Promise<BangumiItem[]> {
 	const res = await fetchbgm('https://api.bgm.tv/calendar', c);
 	let cal = extractCalendar(res);
 	return cal;

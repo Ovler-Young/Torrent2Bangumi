@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 
-import { getCalander } from './bgm';
+import { getCalendar } from './bgm';
 
 const app = new Hono();
 
@@ -25,8 +25,8 @@ app.get('/', c => {
 	return c.text('Hello Hono!');
 });
 
-app.get('/getCalander', async c => {
-	const res = await getCalander(c);
+app.get('/getCalendar', async c => {
+	const res = await getCalendar(c);
 	return c.json(res);
 });
 
