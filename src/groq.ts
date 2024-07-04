@@ -216,6 +216,7 @@ async function groqChat(c: any, message: any, model?: string, temperature?: numb
 			});
 
 			let response_text = groqResponse.choices[0].message.content;
+			console.log(response_text);
 			if (!(response_text === null || response_text === '')) {
 				response = JSON.parse(response_text);
 				break;
