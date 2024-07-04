@@ -144,14 +144,31 @@ export async function getInfo(c: any, name: string, time: string): Promise<any> 
 		}),
 		role: 'user',
 	});
-	let groqResponse = await groq.chat.completions.create({
-		messages: message,
-		model: 'llama3-70b-8192',
-		temperature: 0.2,
-	});
+	let retryCount = 0;
+	let temperature = 0.2;
+	let response: any;
 
-	let response_text = groqResponse.choices[0].message.content;
-	let response = JSON.parse(response_text);
+	do {
+	  try {
+		let groqResponse = await groq.chat.completions.create({
+		  messages: message,
+		  model: 'llama3-70b-8192',
+		  temperature: temperature,
+		});
+
+		let response_text = groqResponse.choices[0].message.content;
+		if (!(response_text === null || response_text === '')) {
+			response = JSON.parse(response_text);
+			break;
+		}
+	  } catch (error) {
+		retryCount++;
+		if (retryCount >= 3) {
+		  throw new Error('Failed to parse JSON after 3 attempts');
+		}
+		temperature /= 2; 
+	  }
+	} while (retryCount < 3);
 
 	return response;
 }
