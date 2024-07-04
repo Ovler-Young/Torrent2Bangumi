@@ -13,7 +13,7 @@ Post a request to `${YOUR_WORKER_URL}/resolve` with the following JSON body:
 
 It will return a JSON object with the following structure:
 
-``` json
+``` javascript
 {
     "inputFilename": ${inputFilename},
     "inputPubDate": ${inputPubDate},
