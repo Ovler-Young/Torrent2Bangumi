@@ -15,7 +15,10 @@ const prompt = `## Context
 
 ## Tone
 
-保持中立、客观的语气，不对输入信息做任何主观判断或修改。
+在处理japaneseTitle时，如果遇到Hepburn罗马字拼写：
+1. 识别罗马字拼写的日语标题
+2. 将其准确转换为原始的日文假名和汉字
+3. 在japaneseTitle字段中使用转换后的日文，而不是原始的罗马字
 
 ## Audience
 
@@ -31,7 +34,7 @@ const prompt = `## Context
   - inputFilename: 输入的完整文件名
   - inputPubDate: 输入的发布日期
   - chineseTitle: 中文标题
-  - japaneseTitle: 日文标题
+  - japaneseTitle: 日文标题（对于日语标题，如果遇到Hepburn罗马字拼写，需要将其转换为原始的日文假名和汉字。）
   - englishTitle: 英文标题
   - hasSubtitles: 是否有字幕
   - fansubGroup: 字幕组名称
