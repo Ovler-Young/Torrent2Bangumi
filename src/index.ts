@@ -1,6 +1,8 @@
-import { Hono } from 'hono'
+import { Hono } from 'hono';
 
-const app = new Hono()
+import { getCalander } from './bgm';
+
+const app = new Hono();
 
 export interface Env {
 	// Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
@@ -19,8 +21,13 @@ export interface Env {
 	// MY_QUEUE: Queue;
 }
 
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
-})
+app.get('/', c => {
+	return c.text('Hello Hono!');
+});
 
-export default app
+app.get('/getCalander', async c => {
+	const res = await getCalander(c);
+	return c.json(res);
+});
+
+export default app;
