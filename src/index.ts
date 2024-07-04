@@ -1,9 +1,19 @@
 import { Hono } from 'hono';
+import { cache } from 'hono/cache';
+import { prettyJSON } from 'hono/pretty-json';
 
 import { getCalendar, getEpisodes, searchChii } from './bgm';
 import { generateResponse } from './groq';
 
 const app = new Hono();
+app.get(
+	'*',
+	cache({
+		cacheName: 'my-app',
+		cacheControl: 'max-age=3600',
+	})
+);
+app.use(prettyJSON({ space: 4 }));
 
 export interface Env {
 	// Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
@@ -32,7 +42,7 @@ app.get('/getCalendar', async c => {
 });
 
 app.post('/resolve', async c => {
-	const body = await c.req.json()
+	const body = await c.req.json();
 	const { name, time: providedTime } = body;
 	const time = providedTime ?? new Date().toISOString();
 	const res = await generateResponse(c, name, time);
