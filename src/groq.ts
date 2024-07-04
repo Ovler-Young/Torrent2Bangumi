@@ -41,7 +41,7 @@ const matchPrompt = `## Context
 现在，你已经准备好接收输入并进行解析了。请等待用户输入JSON格式的种子信息，其中包含"name"和"pubDate"字段。
 `;
 
-let privious_message = [
+let matchPriviousMessage = [
 	{
 		user: {
 			name: '[喵萌奶茶屋&LoliHouse] 身为魔王的我娶了奴隶精灵为妻、该如何爱她才好？ / Madome - 12 [WebRip 1080p HEVC-10bit AAC][简繁内封字幕][END]',
@@ -183,6 +183,87 @@ const matchSubjectPrompt = `## Context
 现在，你已经准备好接收输入并进行解析和匹配了。请等待用户输入JSON格式的种子信息，其中包含之前解析的结果。输出时只输出JSON，不包含其他文字说明。
 `;
 
+let matchSubjectMessage = [
+	{
+		user: {
+			inputFilename:
+				'[小满云电工作室]不时轻声地以俄语遮羞的邻座艾莉同学 - S01E01 [简体内嵌] [1080P] [HEVC] [AAC] [562.4 MB]',
+			inputPubDate: '2024-07-04T18:00:38.570Z',
+			chineseTitle: '不时轻声地以俄语遮羞的邻座艾莉同学',
+			japaneseTitle: 'Unknown',
+			englishTitle: 'Unknown',
+			hasSubtitles: true,
+			fansubGroup: '小满云电工作室',
+			resolution: '1080p',
+			audioTracks: 'AAC',
+		},
+		assistant: {
+			inputFilename:
+				'[小满云电工作室]不时轻声地以俄语遮羞的邻座艾莉同学 - S01E01 [简体内嵌] [1080P] [HEVC] [AAC] [562.4 MB]',
+			inputPubDate: '2024-07-04T18:00:38.570Z',
+			fansubGroup: '小满云电工作室',
+			resolution: '1080p',
+			hasSubtitles: true,
+			audioTracks: 'AAC',
+			subject: {
+				subject_id: '424883',
+				subject_name: '時々ボソッとロシア語でデレる隣のアー リャさん',
+				subject_name_cn: '不时轻声地以俄语遮羞的邻座艾莉同学',
+				nsfw: false,
+				episodes: [
+					{
+						episode_id: '1350861',
+						episode_name: 'ロシア語でデレるアーリャさん',
+						episode_name_cn: '用俄语说真心话的艾莉同学',
+						episode_ep: 1,
+						episode_sort: 1,
+						airdate: '2024-07-03',
+					},
+				],
+			},
+		},
+	},
+	{
+		user: {
+			inputFilename:
+				'[ANi] Oshi No Ko -【我推的孩子】 - 12 [1080P][Baha][WEB-DL][AAC AVC][CHT][MP4]',
+			inputPubDate: '2024-07-03T23:01:59.438',
+			chineseTitle: '我推的孩子',
+			japaneseTitle: 'Unknown',
+			englishTitle: 'Oshi No Ko',
+			hasSubtitles: true,
+			fansubGroup: 'ANi',
+			resolution: '1080p',
+			audioTracks: 'AAC',
+		},
+		assistant: {
+			inputFilename:
+				'[ANi] Oshi No Ko -【我推的孩子】 - 12 [1080P][Baha][WEB-DL][AAC AVC][CHT][MP4]',
+			inputPubDate: '2024-07-03T23:01:59.438',
+			fansubGroup: 'ANi',
+			resolution: '1080p',
+			hasSubtitles: true,
+			audioTracks: 'AAC',
+			subject: {
+				subject_id: '443428',
+				subject_name: '【推しの子】 第2期',
+				subject_name_cn: '【我推的孩子】 第二季',
+				nsfw: false,
+				episodes: [
+					{
+						episode_id: '1349007',
+						episode_name: '東京ブレイド',
+						episode_name_cn: '东京BLADE',
+						episode_ep: 1,
+						episode_sort: 12,
+						airdate: '2024-07-03',
+					},
+				],
+			},
+		},
+	},
+];
+
 interface matchRequest {
 	name: string;
 	pubDate: string;
@@ -247,13 +328,13 @@ export async function getInfo(c: any, name: string, time?: string): Promise<matc
 			role: 'system',
 		},
 	];
-	for (let i = 0; i < privious_message.length; i++) {
+	for (let i = 0; i < matchPriviousMessage.length; i++) {
 		message.push({
-			content: JSON.stringify(privious_message[i].user, null, 4),
+			content: JSON.stringify(matchPriviousMessage[i].user, null, 4),
 			role: 'user',
 		});
 		message.push({
-			content: JSON.stringify(privious_message[i].assistant, null, 4),
+			content: JSON.stringify(matchPriviousMessage[i].assistant, null, 4),
 			role: 'assistant',
 		});
 	}
@@ -273,7 +354,10 @@ export async function getInfo(c: any, name: string, time?: string): Promise<matc
 export async function generateResponse(c: any, keyword: string, time?: string): Promise<any> {
 	let matchResponse: matchResponse = await getInfo(c, keyword, time);
 	let { chineseTitle, japaneseTitle, englishTitle } = matchResponse;
-	let searchResponse = await searchChii(japaneseTitle || englishTitle || chineseTitle || keyword, c);
+	let searchResponse = await searchChii(
+		japaneseTitle || englishTitle || chineseTitle || keyword,
+		c
+	);
 
 	let prompt = matchSubjectPrompt.replace(
 		'{{searchResponse}}',
@@ -285,6 +369,17 @@ export async function generateResponse(c: any, keyword: string, time?: string): 
 			role: 'system',
 		},
 	];
+
+	for (let i = 0; i < matchSubjectMessage.length; i++) {
+		message.push({
+			content: JSON.stringify(matchSubjectMessage[i].user, null, 4),
+			role: 'user',
+		});
+		message.push({
+			content: JSON.stringify(matchSubjectMessage[i].assistant, null, 4),
+			role: 'assistant',
+		});
+	}
 
 	message.push({
 		content: JSON.stringify(matchResponse, null, 4),
