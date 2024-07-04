@@ -1,6 +1,6 @@
 import { Groq } from 'groq-sdk';
 import { env } from 'hono/adapter';
-import { searchChii, getEpisodes } from './bgm';
+import { searchChii, getSubject, getEpisode } from './bgm';
 
 const matchPrompt = `## Context
 
@@ -291,6 +291,14 @@ export async function generateResponse(c: any, keyword: string, time?: string): 
 	});
 
 	let response = await groqChat(c, message);
+
+	let episode;
+	if (response.subject.episodes[0].episode_id) {
+		episode = await getEpisode(response.subject.episodes[0].episode_id, c);
+		let subject = await getSubject(episode.subject_id, c);
+		response.subject = subject;
+		response.subject.episodes = episode;
+	}
 
 	return response;
 }
