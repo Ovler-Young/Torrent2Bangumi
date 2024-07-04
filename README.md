@@ -6,8 +6,8 @@ Post a request to `${YOUR_WORKER_URL}/resolve` with the following JSON body:
 
 ``` json
 {
-  "name": "The name of the torrent",
-  "time": "The creation time of the torrent",
+    "name": "The name of the torrent",
+    "time": "The creation time of the torrent",
 }
 ```
 
@@ -40,6 +40,8 @@ It will return a JSON object with the following structure:
 ```
 
 If you're sure there have no `/` in the torrent name, you can simply get the result by visiting `${YOUR_WORKER_URL}/resolve/${name}/${time}`.
+
+By the way, if you add `?pretty` to the URL, the result will be formatted in a more readable way.
 
 ## Development
 
