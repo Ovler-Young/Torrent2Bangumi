@@ -70,6 +70,7 @@ async function fetchbgm(url: string, c: any): Promise<any> {
 	const res = await fetch(url, {
 		headers: {
 			Authorization: `Bearer ${BANGUMI_API_KEY}`,
+			'User-Agent': 'Ovler-Young/Torrent2Bangumi (https://github.com/Ovler-Young/Torrent2Bangumi)',
 		},
 	});
 	let response = await res.json();
