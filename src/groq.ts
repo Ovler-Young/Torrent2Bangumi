@@ -275,7 +275,7 @@ export async function getInfo(c: any, name: string, time?: string): Promise<matc
 export async function generateResponse(c: any, keyword: string, time?: string): Promise<any> {
 	let matchResponse: matchResponse = await getInfo(c, keyword, time);
 	let { chineseTitle, japaneseTitle, englishTitle } = matchResponse;
-	let searchResponse = await searchChii(japaneseTitle || englishTitle || chineseTitle || keyword);
+	let searchResponse = await searchChii(japaneseTitle || englishTitle || chineseTitle || keyword, c);
 
 	let prompt = matchSubjectPrompt.replace(
 		'{{searchResponse}}',

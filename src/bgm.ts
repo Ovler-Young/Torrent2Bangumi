@@ -105,7 +105,7 @@ export async function getEpisodes(id: number, c: any): Promise<any> {
 	return res;
 }
 
-export async function searchChii(keyword: string): Promise<any[]> {
+export async function searchChii(keyword: string, c:any): Promise<any[]> {
 	const query = `
 	  query SubjectSearch($q: String, $type: String) {
 		querySubjectSearch(q: $q, type: $type) {
@@ -140,10 +140,23 @@ export async function searchChii(keyword: string): Promise<any[]> {
 	});
 
 	const data: any = await response.json();
-	return data.data.querySubjectSearch.result.map((item: any) => ({
+	let searchresult = data.data.querySubjectSearch.result.map((item: any) => ({
 		id: item.id,
 		name: item.name,
 		nameCN: item.nameCN,
 		nsfw: item.nsfw,
 	}));
+
+	for (let i = 0; i < searchresult.length; i++) {
+		let episodes = await getEpisodes(searchresult[i].id, c);
+		searchresult[i].eps = episodes.data.map((item: any) => ({
+			ep: item.ep,
+			sort: item.sort,
+			episode_id: item.id,
+			name: item.name,
+			name_cn: item.name_cn,
+			airdate: item.airdate,
+		}));
+	}
+	return searchresult;
 }

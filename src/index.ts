@@ -51,7 +51,7 @@ app.get('/getEpisodes/:id', async c => {
 
 app.get('/search/:keyword', async c => {
 	const { keyword } = c.req.param();
-	const res = await searchChii(keyword);
+	const res = await searchChii(keyword, c);
 	return c.json(res);
 });
 
