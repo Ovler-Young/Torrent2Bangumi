@@ -356,7 +356,7 @@ export async function generateResponse(c: any, keyword: string, time?: string): 
 	let matchResponse: matchResponse = await getInfo(c, keyword, time);
 	let { chineseTitle, japaneseTitle, englishTitle } = matchResponse;
 	let searchResponse = await searchChii(
-		japaneseTitle || englishTitle || chineseTitle || keyword,
+		chineseTitle || japaneseTitle || englishTitle || keyword,
 		c
 	);
 
