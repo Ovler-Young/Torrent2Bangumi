@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 
-import { getCalendar, searchChii } from './bgm';
-import { getInfo } from './groq';
+import { getCalendar, getEpisodes, searchChii } from './bgm';
+import { generateResponse } from './groq';
 
 const app = new Hono();
 
@@ -33,12 +33,19 @@ app.get('/getCalendar', async c => {
 
 app.get('/resolve/:name/:time', async c => {
 	const { name, time } = c.req.param();
-	const res = await getInfo(c, name, time);
+	const res = await generateResponse(c, name, time);
 	return c.json(res);
 });
 app.get('/resolve/:name', async c => {
 	const { name } = c.req.param();
-	const res = await getInfo(c, name);
+	const res = await generateResponse(c, name);
+	return c.json(res);
+});
+
+app.get('/getEpisodes/:id', async c => {
+	let { id } = c.req.param();
+	let subject_id = parseInt(id);
+	const res = await getEpisodes(subject_id, c);
 	return c.json(res);
 });
 
