@@ -99,6 +99,11 @@ function extractCalendar(calendar: CalendarDay[]): BangumiSipleItem[] {
 	return result;
 }
 
+export async function getEpisodes(id: number, c: any): Promise<any> {
+	const res = await fetchbgm(`https://api.bgm.tv/v0/episodes?subject_id=${id}&limit=200&offset=0`, c);
+	return res;
+}
+
 export async function searchChii(keyword: string): Promise<any[]> {
 	const query = `
 	  query SubjectSearch($q: String, $type: String) {
