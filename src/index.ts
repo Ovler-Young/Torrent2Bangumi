@@ -33,7 +33,73 @@ export interface Env {
 }
 
 app.get('/', c => {
-	return c.text('Hello Hono!');
+	// html content is stored in index.html
+	const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Torrent to Bangumi</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			max-width: 800px;
+			margin: 0 auto;
+			padding: 20px;
+		}
+		h1 {
+			color: #333;
+		}
+		form {
+			margin-bottom: 20px;
+		}
+		input, button {
+			margin: 10px 0;
+			padding: 5px;
+		}
+		#result {
+			white-space: pre-wrap;
+			background-color: #f0f0f0;
+			padding: 10px;
+			border-radius: 5px;
+		}
+	</style>
+</head>
+<body>
+	<h1>Torrent to Bangumi Demo</h1>
+	<form id="resolveForm">
+		<input type="text" id="name" placeholder="Torrent name" required><br>
+		<input type="text" id="time" placeholder="Torrent creation time" required><br>
+		<button type="submit">Resolve</button>
+	</form>
+	<div id="result"></div>
+
+	<script>
+		document.getElementById('resolveForm').addEventListener('submit', async (e) => {
+			e.preventDefault();
+			const name = document.getElementById('name').value;
+			const time = document.getElementById('time').value;
+
+			try {
+				const response = await fetch('/resolve', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ name, time }, null, 4),
+				});
+				const result = await response.json();
+				document.getElementById('result').textContent = JSON.stringify(result, null, 4);
+			} catch (error) {
+				document.getElementById('result').textContent = \`Error: \${error}\`;
+			}
+		});
+	</script>
+</body>
+</html>
+	`;
+	return c.html(htmlContent);
 });
 
 app.get('/getCalendar', async c => {
