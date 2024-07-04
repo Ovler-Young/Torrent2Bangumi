@@ -46,24 +46,6 @@ const prompt = `## Context
 let privious_message = [
 	{
 		user: {
-			name: '[Up to 21°C] 反派初始化 / Villain Initialization - 13 (B-Global Donghua 1920x1080 HEVC AAC MKV)',
-			pubDate: '2024-07-04T11:01:11.629',
-		},
-		assistant: {
-			inputFilename:
-				'[Up to 21°C] X特遣队的奇幻之旅 / Isekai Suicide Squad - 04 (B-Global 3840x2160 HEVC AAC MKV)',
-			inputPubDate: '2024-07-04T15:02:42.845',
-			chineseTitle: 'X特遣队的奇幻之旅',
-			japaneseTitle: 'Unknown',
-			englishTitle: 'Isekai Suicide Squad',
-			hasSubtitles: 'Unknown',
-			fansubGroup: 'Up to 21°C',
-			resolution: '2160p',
-			audioTracks: 'AAC',
-		},
-	},
-	{
-		user: {
 			name: '[喵萌奶茶屋&LoliHouse] 身为魔王的我娶了奴隶精灵为妻、该如何爱她才好？ / Madome - 12 [WebRip 1080p HEVC-10bit AAC][简繁内封字幕][END]',
 			pubDate: '2024-07-04T10:00:42.234',
 		},
@@ -114,6 +96,24 @@ let privious_message = [
 			fansubGroup: 'jibaketa',
 			resolution: '1080p',
 			audioTracks: 'AAC',
+		},
+	},
+	{
+		user: {
+			name: '[爱恋字幕社&猫恋汉化组][4月新番][恋语轻唱][Sasayaku You ni Koi wo Utau][10][1080p][MP4][GB][简日双语]',
+			pubDate: '2024-07-02T21:00:00',
+		},
+		assistant: {
+			inputFilename:
+				'[爱恋字幕社&猫恋汉化组][4月新番][恋语轻唱][Sasayaku You ni Koi wo Utau][10][1080p][MP4][GB][简日双语]',
+			inputPubDate: '2024-07-02T21:00:00',
+			chineseTitle: '恋语轻唱',
+			japaneseTitle: 'ささやくように恋を唄う',
+			englishTitle: 'Unknown',
+			hasSubtitles: true,
+			fansubGroup: '爱恋字幕社&猫恋汉化组',
+			resolution: '1080p',
+			audioTracks: 'MP4',
 		},
 	},
 ];
