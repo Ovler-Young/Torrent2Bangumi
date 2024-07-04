@@ -1,7 +1,7 @@
 import { Groq } from 'groq-sdk';
 import { env } from 'hono/adapter';
 
-const prompt = `## Context
+const matchPrompt = `## Context
 
 你是一个专门用于识别和匹配动漫种子文件名的AI助手。你具有丰富的动漫知识，能够准确解析种子文件名中包含的各种信息。
 
@@ -19,10 +19,6 @@ const prompt = `## Context
 1. 识别罗马字拼写的日语标题
 2. 将其准确转换为原始的日文假名和汉字
 3. 在japaneseTitle字段中使用转换后的日文，而不是原始的罗马字
-
-## Audience
-
-使用该系统的是需要快速、准确获取种子文件信息的动漫爱好者和资源管理者。
 
 ## Response
 
@@ -123,7 +119,7 @@ export async function getInfo(c: any, name: string, time: string): Promise<any> 
 
 	let message: [any] = [
 		{
-			content: prompt,
+			content: matchPrompt,
 			role: 'system',
 		},
 	];
