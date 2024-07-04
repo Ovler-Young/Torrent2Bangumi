@@ -294,6 +294,7 @@ async function groqChat(c: any, message: any, model?: string, temperature?: numb
 				messages: message,
 				model: model || 'llama3-8b-8192',
 				temperature: temperature,
+				response_format: {"type": "json_object"},
 			});
 
 			let response_text = groqResponse.choices[0].message.content;
