@@ -37,7 +37,8 @@ const matchPrompt = `## Context
   - resolution: 分辨率, 如"1080p"
   - audioTracks: 音轨信息
 
-现在，你已经准备好接收输入并进行解析了。请等待用户输入JSON格式的种子信息，其中包含"name"和"pubDate"字段。`;
+现在，你已经准备好接收输入并进行解析了。请等待用户输入JSON格式的种子信息，其中包含"name"和"pubDate"字段。
+`;
 
 let privious_message = [
 	{
@@ -113,10 +114,94 @@ let privious_message = [
 		},
 	},
 ];
-export async function getInfo(c: any, name: string, time?: string): Promise<any> {
+
+const generatePrompt = `## Context
+
+你是一个专门用于识别和匹配动漫种子文件名的AI助手。你具有丰富的动漫知识，能够准确解析种子文件名中包含的各种信息。现在，你还需要根据提供的搜索结果来匹配最合适的动漫信息。
+
+搜索结果如下：
+{{searchResponse}}
+
+## Objective
+
+你的任务是解析输入的JSON数据，该数据包含了之前解析的种子文件名信息。然后，你需要根据提供的搜索结果，找到最匹配的动漫条目，并将其信息合并到输入数据中。
+
+## Style
+
+解析和匹配时要精确、全面，不遗漏任何可能的信息。对于无法确定的信息，使用"Unknown"表示。
+
+## Response
+
+- 输出格式为Pretty JSON，使用4字符缩进
+- 只输出JSON，不包含其他文字说明
+- 不对任何名称进行翻译
+- 对于无法确定的任何信息，使用"Unknown"表示
+- 在原有输入的基础上，添加以下字段：
+  - id: 匹配到的动漫条目的ID
+  - name: 匹配到的动漫条目的原名
+  - nsfw: 匹配到的动漫条目的nsfw标志
+- 用匹配到的动漫条目的nameCN替换原有的chineseTitle
+- 如果没有找到匹配的条目，新增的字段（id, name, nsfw）应设为null
+
+现在，你已经准备好接收输入并进行解析和匹配了。请等待用户输入JSON格式的种子信息，其中包含之前解析的结果。
+`;
+
+interface matchRequest {
+	name: string;
+	pubDate: string;
+}
+
+interface matchResponse {
+	inputFilename: string;
+	inputPubDate: string;
+	chineseTitle: string | null;
+	japaneseTitle: string | null;
+	englishTitle: string | null;
+	hasSubtitles: boolean | null;
+	fansubGroup: string | null;
+	resolution: string | null;
+	audioTracks: string | null;
+}
+
+async function groqChat(c: any, message: any, model?: string, temperature?: number): Promise<any> {
 	const { GROQ_API_KEY } = env<{ GROQ_API_KEY: string }>(c);
 	const groq = new Groq({ apiKey: GROQ_API_KEY });
+	let retryCount = 0;
+	temperature = temperature || 0.2;
+	let response: any;
 
+	do {
+		try {
+			let groqResponse = await groq.chat.completions.create({
+				messages: message,
+				model: model || 'llama3-70b-8192',
+				temperature: temperature,
+			});
+
+			let response_text = groqResponse.choices[0].message.content;
+			if (!(response_text === null || response_text === '')) {
+				response = JSON.parse(response_text);
+				break;
+			}
+		} catch (error) {
+			retryCount++;
+			if (retryCount >= 3) {
+				throw new Error('Failed to parse JSON after 3 attempts');
+			}
+			temperature /= 2;
+		}
+	} while (retryCount < 3);
+
+	// if any of the fields are "Unknown", change them to null
+	for (let key in response) {
+		if (response[key] === 'Unknown') {
+			response[key] = null;
+		}
+	}
+	return response;
+}
+
+export async function getInfo(c: any, name: string, time?: string): Promise<matchResponse> {
 	let message: [any] = [
 		{
 			content: matchPrompt,
@@ -140,31 +225,35 @@ export async function getInfo(c: any, name: string, time?: string): Promise<any>
 		}),
 		role: 'user',
 	});
-	let retryCount = 0;
-	let temperature = 0.2;
-	let response: any;
 
-	do {
-		try {
-			let groqResponse = await groq.chat.completions.create({
-				messages: message,
-				model: 'llama3-70b-8192',
-				temperature: temperature,
-			});
+	let response = await groqChat(c, message);
 
-			let response_text = groqResponse.choices[0].message.content;
-			if (!(response_text === null || response_text === '')) {
-				response = JSON.parse(response_text);
-				break;
-			}
-		} catch (error) {
-			retryCount++;
-			if (retryCount >= 3) {
-				throw new Error('Failed to parse JSON after 3 attempts');
-			}
-			temperature /= 2;
-		}
-	} while (retryCount < 3);
+	return response;
+}
+
+import { searchChii } from './bgm';
+export async function generateResponse(c: any, keyword: string, time?: string): Promise<any> {
+	let matchResponse: matchResponse = await getInfo(c, keyword, time);
+	let { chineseTitle, japaneseTitle, englishTitle } = matchResponse;
+	let searchResponse = await searchChii(japaneseTitle || englishTitle || chineseTitle || keyword);
+
+	let prompt = generatePrompt.replace(
+		'{{searchResponse}}',
+		JSON.stringify(searchResponse, null, 4)
+	);
+	let message: [any] = [
+		{
+			content: prompt,
+			role: 'system',
+		},
+	];
+
+	message.push({
+		content: JSON.stringify(matchResponse, null, 4),
+		role: 'user',
+	});
+
+	let response = await groqChat(c, message);
 
 	return response;
 }
