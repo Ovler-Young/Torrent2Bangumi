@@ -150,13 +150,24 @@ export async function searchChii(keyword: string, c:any): Promise<any[]> {
 	for (let i = 0; i < 4; i++) {
 		let episodes = await getEpisodes(searchresult[i].subject_id, c);
 		searchresult[i].eps = episodes.data.map((item: any) => ({
-			ep: item.ep,
-			sort: item.sort,
+			episode_ep: item.ep,
+			episode_sort: item.sort,
 			episode_id: item.id,
-			name: item.name,
-			name_cn: item.name_cn,
+			episode_name: item.name,
+			episode_name_cn: item.name_cn,
 			airdate: item.airdate,
 		}));
+		searchresult[i].eps = searchresult[i].eps.filter((item: any) => item.episode_name);
 	}
+
+	searchresult = searchresult.map((item: any) => {
+		let newItem = { ...item };
+		newItem.subject_name = newItem.name;
+		newItem.subject_name_cn = newItem.nameCN;
+		delete newItem.name;
+		delete newItem.nameCN;
+		return newItem;
+	});
+
 	return searchresult;
 }

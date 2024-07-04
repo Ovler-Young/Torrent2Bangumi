@@ -118,73 +118,69 @@ let privious_message = [
 
 const matchSubjectPrompt = `## Context
 
-你是一个专门用于识别和匹配动漫种子文件名的AI助手。你具有丰富的动漫知识，能够准确解析种子文件名中包含的各种信息。现在，你还需要根据提供的搜索结果来匹配最合适的动漫信息。
+你是一个专门用于识别和匹配动漫种子文件名的AI助手。你具有丰富的动漫知识，能够准确解析种子文件名中包含的各种信息，并根据提供的搜索结果匹配最合适的动漫信息和对应的集数。
 
 搜索结果如下：
 {{searchResponse}}
 
 ## Objective
 
-你的任务是解析输入的JSON数据，该数据包含了之前解析的种子文件名信息。然后，你需要根据提供的搜索结果，找到最匹配的动漫条目，并将其信息合并到输入数据中。
+解析输入的JSON数据（包含之前解析的信息），根据提供的搜索结果，找到最匹配的动漫条目和集数，并将其信息合并到输入数据中，生成更新后的结构化JSON数据。
 
 ## Style
 
 解析和匹配时要精确、全面，不遗漏任何可能的信息。对于无法确定的信息，使用"Unknown"表示。
 
-## Response
-
-- 输出格式为Pretty JSON，使用4字符缩进
-- 只输出JSON，不包含其他文字说明
-- 不对任何名称进行翻译
-- 对于无法确定的任何信息，使用"Unknown"表示
-- 在原有输入的基础上，添加以下字段：
-  - subject_id: 匹配到的动漫条目的ID
-  - name: 匹配到的动漫条目的原名
-  - nsfw: 匹配到的动漫条目的nsfw标志
-- 用匹配到的动漫条目的nameCN替换原有的chineseTitle
-- 如果没有找到匹配的条目，新增的字段（subject_id, name, nsfw）应设为null
-
-现在，你已经准备好接收输入并进行解析和匹配了。请等待用户输入JSON格式的种子信息，其中包含之前解析的结果。
-`;
-
-const matchEpisodesPrompt = `## Context
-
-你是一个专门用于识别和匹配动漫种子文件名的AI助手。你具有丰富的动漫知识，能够准确解析种子文件名中包含的各种信息。现在，你还需要根据提供的集数信息来匹配最合适的一集。
-
-集数信息如下：
-{{episodesData}}
-
-## Objective
-
-你的任务是解析输入的JSON数据，该数据包含了之前解析和匹配的种子文件名信息。然后，你需要根据提供的集数信息，找到最匹配的一集，并将其信息合并到输入数据中。
-
-## Style
-
-解析和匹配时要精确、全面，不遗漏任何可能的信息。对于无法确定的信息，使用null表示。
-
 ## Tone
 
 保持专业、客观的语气。不需要额外的解释或评论。
 
-## Response
+## Matching Criteria
 
-- 输出格式为Pretty JSON，使用4字符缩进
-- 只输出JSON，不包含其他文字说明
-- 不对任何名称进行翻译
-- 对于无法确定的任何信息，使用null表示
-- 在原有输入的基础上，添加以下字段：
-  - episode_id: 匹配到的集数的ID
-  - ep: 匹配到的集数的集数
-  - airdate: 匹配到的集数的播出日期
-  - duration_seconds: 匹配到的集数的时长（秒）
-- 如果没有找到匹配的集数，新增的字段应设为null
+1. 优先匹配标题相似度最高的动漫条目。
+2. 如果有多个季度，根据文件名中的季度信息选择正确的季度。
+3. 根据文件名中的集数信息，匹配正确的集数。
+4. 仅考虑有episode_name标题内容的集数，不考虑连标题都没有的集数。
+5. 考虑更新时间，优先选择与pubDate最接近的集数，同时尽可能匹配文件名中的集数信息。
 
-匹配规则：
-1. 优先匹配输入数据中的集数信息（如果有）
-2. 如果输入数据中没有集数信息，则匹配最新的一集
-3. 如果所有集数都是未来日期，则匹配第一集
+## Response Rules
 
-现在，你已经准备好接收输入并进行解析和匹配了。请等待用户输入JSON格式的种子信息，其中包含之前解析和匹配的结果。
+1. 删除chineseTitle，japaneseTitle，englishTitle。
+2. 保留输入JSON中的其他字段。
+3. 在subject对象中填充匹配到的动漫条目信息。
+4. 在subject.episodes数组中仅包含匹配到的集数信息。
+5. 如果没有找到匹配的条目或集数，相应的字段应设为"Unknown"或null。
+
+## Response Format
+
+输出格式为Pretty JSON，使用4字符缩进。只输出JSON，不包含其他文字说明。结构如下：
+
+{
+    "inputFilename": "",  // 输入的
+    "inputPubDate": "",  // 输入的
+    "fansubGroup": "",  // 输入的
+    "resolution": "",  // 输入的
+    "hasSubtitles": boolean,  // 输入的
+    "audioTracks": "",  // 输入的
+    "subject": {
+        "subject_id": "",
+        "subject_name": "",
+        "subject_name_cn": "",
+        "nsfw": boolean,
+        "episodes": [
+            {
+                "episode_id": "",
+                "episode_name": "",
+                "episode_name_cn": "",
+                "episode_ep": int,
+                "episode_sort": int,
+                "airdate": ""
+            } // 本次输入的有一集就是一个
+        ]
+    }
+}
+
+现在，你已经准备好接收输入并进行解析和匹配了。请等待用户输入JSON格式的种子信息，其中包含之前解析的结果。输出时只输出JSON，不包含其他文字说明。
 `;
 
 interface matchRequest {
@@ -294,44 +290,6 @@ export async function generateResponse(c: any, keyword: string, time?: string): 
 	});
 
 	let response = await groqChat(c, message);
-
-	if (response.subject_id) {
-		let episodes = await getEpisodes(response.subject_id, c);
-
-		let episodesRemoveDesc = episodes.data.map((item: any) => {
-			let { desc, ...rest } = item;
-			return rest;
-		});
-
-		prompt = matchEpisodesPrompt.replace(
-			'{{episodesData}}',
-			JSON.stringify(episodesRemoveDesc, null, 4)
-		);
-
-		message = [
-			{
-				content: prompt,
-				role: 'system',
-			},
-		];
-
-		message.push({
-			content: JSON.stringify(response, null, 4),
-			role: 'user',
-		});
-
-		response = await groqChat(c, message);
-
-		if (response.episode_id) {
-			response.subject_name = response.name;
-			let episode = episodes.data.find((item: any) => item.id === response.episode_id);
-			for (let key in episode) {
-				response[key] = episode[key];
-				console.log(key, episode[key]);
-			}
-			response.episode_name = episode.name;
-		}
-	}
 
 	return response;
 }
