@@ -141,14 +141,14 @@ export async function searchChii(keyword: string, c:any): Promise<any[]> {
 
 	const data: any = await response.json();
 	let searchresult = data.data.querySubjectSearch.result.map((item: any) => ({
-		id: item.id,
+		subject_id: item.id,
 		name: item.name,
 		nameCN: item.nameCN,
 		nsfw: item.nsfw,
 	}));
 
-	for (let i = 0; i < searchresult.length; i++) {
-		let episodes = await getEpisodes(searchresult[i].id, c);
+	for (let i = 0; i < 4; i++) {
+		let episodes = await getEpisodes(searchresult[i].subject_id, c);
 		searchresult[i].eps = episodes.data.map((item: any) => ({
 			ep: item.ep,
 			sort: item.sort,
