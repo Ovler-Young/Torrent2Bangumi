@@ -36,6 +36,11 @@ app.get('/resolve/:name/:time', async c => {
 	const res = await getInfo(c, name, time);
 	return c.json(res);
 });
+app.get('/resolve/:name', async c => {
+	const { name } = c.req.param();
+	const res = await getInfo(c, name);
+	return c.json(res);
+});
 
 app.get('/search/:keyword', async c => {
 	const { keyword } = c.req.param();

@@ -113,7 +113,7 @@ let privious_message = [
 		},
 	},
 ];
-export async function getInfo(c: any, name: string, time: string): Promise<any> {
+export async function getInfo(c: any, name: string, time?: string): Promise<any> {
 	const { GROQ_API_KEY } = env<{ GROQ_API_KEY: string }>(c);
 	const groq = new Groq({ apiKey: GROQ_API_KEY });
 
@@ -136,7 +136,7 @@ export async function getInfo(c: any, name: string, time: string): Promise<any> 
 	message.push({
 		content: JSON.stringify({
 			name: name,
-			pubDate: time,
+			pubDate: time || new Date().toISOString(),
 		}),
 		role: 'user',
 	});
