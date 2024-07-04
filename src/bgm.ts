@@ -133,7 +133,7 @@ export async function searchChii(keyword: string): Promise<any[]> {
 		}),
 	});
 
-	const data = await response.json();
+	const data: any = await response.json();
 	return data.data.querySubjectSearch.result.map((item: any) => ({
 		id: item.id,
 		name: item.name,
