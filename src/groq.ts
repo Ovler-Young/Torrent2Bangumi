@@ -226,6 +226,7 @@ async function groqChat(c: any, message: any, model?: string, temperature?: numb
 				throw new Error('Failed to parse JSON after 3 attempts');
 			}
 			temperature /= 2;
+			model = 'llama3-70b-8192';
 		}
 	} while (retryCount < 3);
 
