@@ -126,11 +126,11 @@ export async function getInfo(c: any, name: string, time: string): Promise<any> 
 	];
 	for (let i = 0; i < privious_message.length; i++) {
 		message.push({
-			content: JSON.stringify(privious_message[i].user),
+			content: JSON.stringify(privious_message[i].user, null, 4),
 			role: 'user',
 		});
 		message.push({
-			content: JSON.stringify(privious_message[i].assistant),
+			content: JSON.stringify(privious_message[i].assistant, null, 4),
 			role: 'assistant',
 		});
 	}
@@ -144,6 +144,7 @@ export async function getInfo(c: any, name: string, time: string): Promise<any> 
 	let response = await groq.chat.completions.create({
 		messages: message,
 		model: 'llama3-70b-8192',
+		temperature: 0.2,
 	});
 	return response;
 }
