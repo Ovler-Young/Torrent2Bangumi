@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 
-import { getCalendar } from './bgm';
+import { getCalendar, searchChii } from './bgm';
 import { getInfo } from './groq';
 
 const app = new Hono();
@@ -34,6 +34,12 @@ app.get('/getCalendar', async c => {
 app.get('/resolve/:name/:time', async c => {
 	const { name, time } = c.req.param();
 	const res = await getInfo(c, name, time);
+	return c.json(res);
+});
+
+app.get('/search/:keyword', async c => {
+	const { keyword } = c.req.param();
+	const res = await searchChii(keyword);
 	return c.json(res);
 });
 

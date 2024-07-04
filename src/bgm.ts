@@ -98,3 +98,46 @@ function extractCalendar(calendar: CalendarDay[]): BangumiSipleItem[] {
 	}
 	return result;
 }
+
+export async function searchChii(keyword: string): Promise<any[]> {
+	const query = `
+	  query SubjectSearch($q: String, $type: String) {
+		querySubjectSearch(q: $q, type: $type) {
+		  result {
+			... on Subject {
+			  id
+			  name
+			  nameCN
+			  nsfw
+			}
+		  }
+		}
+	  }
+	`;
+
+	const variables = {
+		q: keyword,
+		type: 'anime',
+	};
+
+	const response = await fetch('https://chii.ai/graphql', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'Accept': '*/*',
+		},
+		body: JSON.stringify({
+			operationName: 'SubjectSearch',
+			variables,
+			query,
+		}),
+	});
+
+	const data = await response.json();
+	return data.data.querySubjectSearch.result.map((item: any) => ({
+		id: item.id,
+		name: item.name,
+		nameCN: item.nameCN,
+		nsfw: item.nsfw,
+	}));
+}
