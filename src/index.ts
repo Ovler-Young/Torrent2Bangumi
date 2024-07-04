@@ -31,6 +31,13 @@ app.get('/getCalendar', async c => {
 	return c.json(res);
 });
 
+app.post('/resolve', async c => {
+	const body = await c.req.json()
+	const { name, time: providedTime } = body;
+	const time = providedTime ?? new Date().toISOString();
+	const res = await generateResponse(c, name, time);
+	return c.json(res);
+});
 app.get('/resolve/:name/:time', async c => {
 	const { name, time } = c.req.param();
 	const res = await generateResponse(c, name, time);
